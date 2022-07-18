@@ -1,0 +1,142 @@
+--A function is same as a procedure except that it returns a value
+
+
+CREATE TABLE transaction_tbl( 
+transid INT, 
+custid int, 
+productname varchar(100), 
+amount int 
+);
+
+
+INSERT INTO TRANSACTION_TBL VALUES(1,1000,'Laptop',5000);
+INSERT INTO TRANSACTION_TBL VALUES(2,1002,'Mobile',20000);
+INSERT INTO TRANSACTION_TBL VALUES(3,1001,'Toys',2000);
+INSERT INTO TRANSACTION_TBL VALUES(4,1001,'Chocolates',500);
+INSERT INTO TRANSACTION_TBL VALUES(5,1003,'Books',1200);
+INSERT INTO TRANSACTION_TBL VALUES(6,1000,'TV',65000);
+INSERT INTO TRANSACTION_TBL VALUES(7,1000,'Table',3000);
+INSERT INTO TRANSACTION_TBL VALUES(8,1002,'Toys',10000);
+INSERT INTO TRANSACTION_TBL VALUES(9,1002,'Dekstop',50000);
+INSERT INTO TRANSACTION_TBL VALUES(10,1005,'Software',100000);
+
+
+CREATE OR REPLACE FUNCTION total_transaction
+RETURN integer IS
+    cnt integer;
+BEGIN
+    SELECT max(*) INTO cnt 
+    FROM transaction_tbl;
+    
+    RETURN cnt;
+END;
+/
+
+DECLARE
+    c integer;
+BEGIN
+    c := total_transaction();
+    dbms_output.put_line('Total number of transactions made : '|| c);
+END;
+/
+
+
+
+CREATE OR REPLACE FUNCTION max_transaction_amt
+RETURN integer IS
+    cnt integer;
+BEGIN
+    SELECT max(amount) INTO cnt 
+    FROM transaction_tbl;
+    
+    RETURN cnt;
+END;
+/
+
+DECLARE
+    c integer;
+BEGIN
+    c := max_transaction_amt();
+    dbms_output.put_line('Max transacted amount is : '|| c);
+END;
+/
+
+
+
+
+CREATE OR REPLACE FUNCTION get_max_amt_product_name
+RETURN VARCHAR2 IS
+    pname VARCHAR2(100);
+BEGIN
+    SELECT productname INTO pname FROM  transaction_tbl WHERE amount = (
+    SELECT max(amount)  
+    FROM transaction_tbl);
+    
+    RETURN pname;
+END;
+/
+
+DECLARE
+    pn VARCHAR2(100);
+BEGIN
+    pn := get_max_amt_product_name();
+    dbms_output.put_line('The product name which is highest rate  : '|| pn);
+END;
+/
+
+
+
+
+SELECT SUM(ROWNUM) FROM DUAL CONNECT BY ROWNUM<=100;
+
+SELECT ROWNUM , productname , amount FROM transaction_tbl;
+
+
+-- CURSOR
+
+-- Cursor is a pointer to the memory area used to store the query result
+
+-- Cursor Attributes:
+-- %FOUND
+-- %NOTFOUND
+-- %ISOPEN
+-- %ROWCOUNT
+
+
+SELECT * FROM TRANSACTION_TBL;
+
+DECLARE
+    t_id TRANSACTION_TBL.TRANSID%type;
+    t_custid TRANSACTION_TBL.CUSTID%type;
+    t_prodname TRANSACTION_TBL.PRODUCTNAME%type;
+    t_amt TRANSACTION_TBL.AMOUNT%type;
+    CURSOR trans_data IS
+        SELECT transid, custid, productname, amount FROM TRANSACTION_TBL;
+BEGIN
+    OPEN trans_data;
+    LOOP
+        FETCH trans_data INTO t_id,t_custid,t_prodname,t_amt;
+        dbms_output.put_line('transid: '||t_id ||' custid: '||t_custid || ' productname : '|| t_prodname || ' amount: '|| t_amt);
+        EXIT WHEN trans_data%NOTFOUND ;
+    END LOOP;
+    CLOSE trans_data;
+END;
+/
+
+
+SELECT * FROM TRANSACTION_TBL;
+
+DECLARE
+    no_of_rows INTEGER;
+BEGIN
+    UPDATE TRANSACTION_TBL SET AMOUNT=75000 WHERE TRANSID=1;
+    IF sql%FOUND THEN
+        no_of_rows := sql%rowcount;
+         dbms_output.put_line('No of records update :' || no_of_rows);
+    ELSIF sql%notfound THEN
+        dbms_output.put_line('No record got updated');
+    END IF;
+END;
+/
+
+
