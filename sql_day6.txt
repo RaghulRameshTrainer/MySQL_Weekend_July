@@ -1,0 +1,197 @@
+-- 3 Types of parameters in Procedure
+-- IN, OUT, IN OUT
+
+DECLARE
+    a INTEGER;
+    b INTEGER;
+    c INTEGER;
+    PROCEDURE findMax(x IN INTEGER, y IN INTEGER, z OUT INTEGER) IS
+    BEGIN
+        IF x > y THEN
+            z := x;
+        ELSE
+            z := y;
+        END IF;
+    END;
+    BEGIN
+     a := 100;
+     b := 200;
+     findMax(a,b,c);
+     DBMS_OUTPUT.PUT_LINE('Max of 100, 200 is :' || c);
+    END;
+    /
+    
+DECLARE
+    a INTEGER;
+    PROCEDURE squareNum(x IN OUT INTEGER) IS
+    BEGIN
+        x := x * x;
+    END;
+    BEGIN
+        a := 11;
+        squareNum(a);
+        DBMS_OUTPUT.PUT_LINE('Square of 11 is :' || a);
+    END;
+    /
+    
+    
+    
+CREATE TABLE CUSTOMER(  
+ID INT NOT NULL,  
+NAME VARCHAR2(100),  
+AGE INT,  
+CITY VARCHAR2(100),  
+SALARY DECIMAL (20,2)  
+);
+
+
+
+INSERT INTO CUSTOMER VALUES(1,'Rajesh',28,'Chennai',100000);
+
+INSERT INTO CUSTOMER VALUES(2,'Kavin',2,'Bangalore',200000);
+
+INSERT INTO CUSTOMER VALUES(3,'Sangavi',25,'Chennai',70000);
+
+INSERT INTO CUSTOMER VALUES(4,'Ravi',50,'Hyderabad',90000);
+
+INSERT INTO CUSTOMER VALUES(5,'Kala',40,'Chennai',75000);
+
+INSERT INTO CUSTOMER VALUES(6,'Priya',26,'Pune',50000);
+
+INSERT INTO CUSTOMER VALUES(7,'Durga',36,'Pune',120000);
+
+SELECT * FROM CUSTOMER;
+TRUNCATE TABLE CUSTOMER;
+
+-- Get the city for Priya
+DECLARE
+    c_id INTEGER ;
+    c_city VARCHAR2(100);
+    PROCEDURE getCity(cid IN INTEGER , c_c OUT VARCHAR2) IS
+    BEGIN
+       SELECT DISTINCT city INTO c_c FROM CUSTOMER WHERE ID=cid; 
+    END;
+    BEGIN
+        c_id := 6;
+        getCity(c_id,c_city);
+        DBMS_OUTPUT.PUT_LINE(' Priya is from :' || c_city);
+    END;
+    /
+    
+ -- Update city from chennai to Delhi for Sankavi 
+ SELECT * FROM CUSTOMER WHERE ID=6;
+DECLARE
+    c_id INTEGER ;
+    n_city VARCHAR2(100);
+    PROCEDURE updateCity(cid IN INTEGER ,ncity IN VARCHAR2) IS
+    BEGIN
+       UPDATE CUSTOMER SET city=ncity WHERE ID=cid;
+       -- UPDATE CUSTOMER SET city='New Delhi' WHERE ID=6;
+    END;
+    BEGIN
+        c_id := 6;
+        n_city:='Nagpur';
+        updateCity(c_id,n_city);
+    END;
+    /
+    
+SELECT * FROM CUSTOMER WHERE ID=6;
+
+    
+-- A function is same as a procedure except that it returns a value
+
+CREATE OR REPLACE FUNCTION totalCustomers 
+RETURN INTEGER IS
+    total number;
+BEGIN
+    SELECT COUNT(*) INTO total FROM CUSTOMER;
+    
+    RETURN total;
+END;
+
+/
+
+DECLARE
+    c number;
+BEGIN
+    c := totalCustomers();
+    DBMS_OUTPUT.PUT_LINE('Total number of customer : ' || c);
+END;
+/
+
+
+DECLARE
+    a number;
+    b number;
+    c number;
+    FUNCTION findMaxNum(x IN number, y IN number)
+    RETURN number IS
+        z number;
+    BEGIN
+        IF x > y THEN
+            z := x;
+        ELSE
+            z := y;
+        END IF;
+        
+        RETURN z;
+    END;
+    BEGIN
+        a := 10;
+        b := 20;
+        c := findMaxNum(a,b);
+        DBMS_OUTPUT.PUT_LINE('Maximum of 10 and 20 is : '|| c);
+    END;
+    /
+    
+    
+    SELECT * FROM CUSTOMER;
+    
+    CREATE OR REPLACE FUNCTION getBouns(sal IN number)
+    RETURN number IS 
+        bns number;
+    BEGIN
+        bns := sal * 0.1;
+        return bns;
+    END;
+    
+SELECT ID,NAME, AGE, CITY, SALARY , getBouns(SALARY) as BONUS FROM CUSTOMER;
+
+
+-- DIFF B/W PROCEDURE and FUNCTION
+-- procedure is for performing logical operation,  Functios is for performing arithmetic operations
+-- procedure does not return a value               Function must return a value
+-- procedure cannot be used in SELECT query        FUnction can be used in select query
+-- Procedure has IN, OUT, IN OUT type param        FUNCTION has only IN paramenter
+
+-- CURSOR
+
+-- CURSOR ATTRIBUTES
+-- %FOUND, %NOTFOUND , %ISOPEN, %ROWCOUNT
+
+
+
+DECLARE 
+    c_id  customer.id%type;
+    c_name  customer.name%type;
+    c_age  customer.age%type;
+    c_city customer.city%type;
+    c_salary customer.salary%type;
+    CURSOR customer_data IS
+        SELECT id, name, age, city ,salary FROM customer;
+    BEGIN
+        OPEN customer_data;
+        LOOP 
+            FETCH customer_data INTO c_id, c_name , c_age, c_city, c_salary;
+            EXIT WHEN customer_data%NOTFOUND;
+            DBMS_OUTPUT.PUT_LINE('ID: '||c_id||' NAME: '||c_name||' AGE: '||c_age||' CITY: '||c_city || ' SALARY: '||c_salary);
+        END LOOP;
+        CLOSE customer_data;
+    END;
+    /
+  
+
+
+
+
+
